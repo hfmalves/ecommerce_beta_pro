@@ -10,8 +10,8 @@ class RmaSeeder extends Seeder
     {
         // Limpar tabelas
         $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
-        $this->db->table('rma_request_items')->truncate();
-        $this->db->table('rma_requests')->truncate();
+        $this->db->table('orders_return_items')->truncate();
+        $this->db->table('orders_returns')->truncate();
         $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
 
 
@@ -32,17 +32,29 @@ class RmaSeeder extends Seeder
             'Quality did not match description',
         ];
 
+        $orders = $this->db->table('orders')->select('id, customer_id')->get()->getResultArray();
+        $orderItems = $this->db->table('orders_items')->get()->getResultArray();
+        $itemsByOrder = [];
+        foreach ($orderItems as $item) {
+            if ((int) $item['qty'] > 0) {
+                $itemsByOrder[$item['order_id']][] = $item;
+            }
+        }
+        $orders = array_values(array_filter($orders, static fn ($order) => isset($itemsByOrder[$order['id']])));
+        shuffle($orders);
+
         $rmas  = [];
         $items = [];
 
-        for ($i = 1; $i <= 20; $i++) {
+        foreach (array_slice($orders, 0, 20) as $index => $order) {
+            $i = $index + 1;
             $status = $statuses[array_rand($statuses)];
             $reason = $reasons[array_rand($reasons)];
 
             $rmas[] = [
                 'id'          => $i,
-                'order_id'    => rand(1, 50),  // assume que tens orders 1-50
-                'customer_id' => rand(1, 10), // assume que tens users 1-10
+                'order_id'    => $order['id'],
+                'customer_id' => $order['customer_id'],
                 'reason'      => $reason,
                 'status'      => $status,
                 'created_at'  => date('Y-m-d H:i:s', strtotime("-" . rand(0, 60) . " days")),
@@ -50,12 +62,14 @@ class RmaSeeder extends Seeder
             ];
 
             // 1 a 3 itens por cada RMA
-            $numItems = rand(1, 3);
-            for ($j = 0; $j < $numItems; $j++) {
+            $candidates = $itemsByOrder[$order['id']];
+            shuffle($candidates);
+            $numItems = rand(1, min(3, count($candidates)));
+            foreach (array_slice($candidates, 0, $numItems) as $orderItem) {
                 $items[] = [
                     'rma_request_id' => $i,
-                    'order_item_id'  => rand(1, 200), // assume que tens order_items 1-200
-                    'qty_returned'   => rand(1, 5),
+                    'order_item_id'  => $orderItem['id'],
+                    'qty_returned'   => rand(1, (int) $orderItem['qty']),
                     'status'         => $status,
                     'created_at'     => date('Y-m-d H:i:s'),
                     'updated_at'     => date('Y-m-d H:i:s'),
@@ -63,7 +77,9 @@ class RmaSeeder extends Seeder
             }
         }
 
-        $this->db->table('rma_requests')->insertBatch($rmas);
-        $this->db->table('rma_request_items')->insertBatch($items);
+        if (! empty($rmas)) {
+            $this->db->table('orders_returns')->insertBatch($rmas);
+            $this->db->table('orders_return_items')->insertBatch($items);
+        }
     }
 }

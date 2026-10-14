@@ -8,13 +8,14 @@ class ModuleProductLoopFullSeeder extends Seeder
 {
     public function run()
     {
+        helper('website_schema');
         //-----------------------------------------------------
         // LIMPAR TABELAS (DELETE + RESET AI)
         //-----------------------------------------------------
         $tables = [
-            'website_module_product_loop_products',
-            'website_module_product_loop_categories',
-            'website_module_product_loop_link',
+            website_presentation_table('website_module_product_loop_products'),
+            website_presentation_table('website_module_product_loop_categories'),
+            website_presentation_table('website_module_product_loop_link'),
         ];
 
         foreach ($tables as $tbl) {
@@ -33,37 +34,33 @@ class ModuleProductLoopFullSeeder extends Seeder
             'is_active'     => 1,
         ];
 
-        $this->db->table('website_module_product_loop_link')->insert($module);
-        $moduleId = $this->db->insertID();
+        $this->db->table(website_presentation_table('website_module_product_loop_link'))->insert($module);
 
         //-----------------------------------------------------
         // 2) CATEGORIAS DO TOPO (TABS)
         //-----------------------------------------------------
         $categoriesData = [
             [
-                'module_id'   => $moduleId,
                 'name'        => 'Produtos novos na loja',
                 'sort_order'  => 1,
                 'category_id' => null,
             ],
             [
-                'module_id'   => $moduleId,
                 'name'        => 'Os produtos mais procurados',
                 'sort_order'  => 2,
                 'category_id' => null,
             ],
             [
-                'module_id'   => $moduleId,
                 'name'        => 'Até 60% desconto',
                 'sort_order'  => 3,
                 'category_id' => null,
             ],
         ];
 
-        $this->db->table('website_module_product_loop_categories')->insertBatch($categoriesData);
+        $this->db->table(website_presentation_table('website_module_product_loop_categories'))->insertBatch($categoriesData);
 
         $moduleCategories = $this->db
-            ->table('website_module_product_loop_categories')
+            ->table(website_presentation_table('website_module_product_loop_categories'))
             ->select('id')
             ->orderBy('id')
             ->get()
@@ -73,19 +70,26 @@ class ModuleProductLoopFullSeeder extends Seeder
         // 3) PRODUTOS (8 POR CADA CATEGORIA)
         //-----------------------------------------------------
         $products = [];
+        $productIds = array_column(
+            $this->db->table('products')->select('id')->get()->getResultArray(),
+            'id'
+        );
 
         foreach ($moduleCategories as $cat) {
             $categoryId = $cat['id'];
 
-            for ($p = 1; $p <= 8; $p++) {
+            shuffle($productIds);
+            foreach (array_slice($productIds, 0, 8) as $position => $productId) {
                 $products[] = [
                     'module_category_id' => $categoryId,
-                    'product_id'         => rand(1, 50), // ID real dos products
-                    'sort_order'         => $p,
+                    'product_id'         => $productId,
+                    'sort_order'         => $position + 1,
                 ];
             }
         }
 
-        $this->db->table('website_module_product_loop_products')->insertBatch($products);
+        if (! empty($products)) {
+            $this->db->table(website_presentation_table('website_module_product_loop_products'))->insertBatch($products);
+        }
     }
 }

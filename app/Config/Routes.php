@@ -196,6 +196,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($rou
             $routes->post('create', 'ShowcasesController::create');
             $routes->get('edit/(:num)', 'ShowcasesController::edit/$1');
             $routes->post('update', 'ShowcasesController::update');
+            $routes->post('reorder-blocks', 'ShowcasesController::reorderBlocks', ['filter' => 'adminAuth']);
+            $routes->post('delete-block', 'ShowcasesController::deleteBlock', ['filter' => 'adminAuth']);
+            $routes->post('add-block', 'ShowcasesController::addBlock', ['filter' => 'adminAuth']);
             $routes->post('delete', 'ShowcasesController::delete');
             $routes->post('deactivate', 'ShowcasesController::deactivate');
         });

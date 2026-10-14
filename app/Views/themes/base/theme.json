@@ -1,0 +1,22 @@
+{
+  "name": "base",
+  "version": "1.0.0",
+  "description": "Cópia do website atual.",
+  "views": "app/Views/themes/base",
+  "assets": "public/themes/base",
+  "blocks": [
+    "blog_grid",
+    "empty",
+    "faq",
+    "footer",
+    "grid_banner",
+    "hero",
+    "home_deals_day",
+    "products_grid",
+    "quickview",
+    "service_promotion",
+    "store_locator",
+    "top_category_filter"
+  ],
+  "status": "copied"
+}

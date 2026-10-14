@@ -3,7 +3,7 @@
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                <a href="index.html" class="logo logo-dark">
+                <a href="<?= base_url(); ?>" class="logo logo-dark">
                                 <span class="logo-sm">
                                     <img src="<?= base_url('assets/images/logo.svg') ?>" alt="" height="60">
                                 </span>
@@ -11,7 +11,7 @@
                                     <img src="<?= base_url('assets/images/logo-dark.png') ?>" alt="" height="60">
                                 </span>
                 </a>
-                <a href="index.html" class="logo logo-light">
+                <a href="<?= base_url(); ?>" class="logo logo-light">
                                 <span class="logo-sm">
                                     <img src="<?= base_url('assets/images/logo-light.svg') ?>" alt="" height="60">
                                 </span>

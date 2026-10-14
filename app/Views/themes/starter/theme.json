@@ -1,0 +1,22 @@
+{
+  "name": "starter",
+  "version": "1.0.0",
+  "description": "Estrutura vazia para criar o segundo tema.",
+  "views": "app/Views/themes/starter",
+  "assets": "public/themes/starter",
+  "blocks": [
+    "blog_grid",
+    "empty",
+    "faq",
+    "footer",
+    "grid_banner",
+    "hero",
+    "home_deals_day",
+    "products_grid",
+    "quickview",
+    "service_promotion",
+    "store_locator",
+    "top_category_filter"
+  ],
+  "status": "skeleton"
+}

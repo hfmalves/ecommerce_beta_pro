@@ -8,6 +8,7 @@ class HomeModulesSeeder extends Seeder
 {
     public function run()
     {
+        helper('website_schema');
         $data = [
             [
                 'type'       => 'slider_01',
@@ -59,6 +60,6 @@ class HomeModulesSeeder extends Seeder
             ],
         ];
 
-        $this->db->table('website_module_home')->insertBatch($data);
+        $this->db->table(website_presentation_table('website_module_home'))->insertBatch($data);
     }
 }

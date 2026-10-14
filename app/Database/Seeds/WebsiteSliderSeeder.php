@@ -8,7 +8,8 @@ class WebsiteSliderSeeder extends Seeder
 {
     public function run()
     {
-        $this->db->query("TRUNCATE TABLE website_sliders");
+        helper('website_schema');
+        $this->db->table(website_presentation_table('website_sliders'))->truncate();
 
         $placeholder = '/assets/website/uploads/placeholder-slider.jpg';
 
@@ -61,6 +62,6 @@ class WebsiteSliderSeeder extends Seeder
             }
         }
 
-        $this->db->table('website_sliders')->insertBatch($slides);
+        $this->db->table(website_presentation_table('website_sliders'))->insertBatch($slides);
     }
 }

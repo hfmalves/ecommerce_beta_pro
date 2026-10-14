@@ -13,10 +13,10 @@ class UserSeeder extends Seeder
 
         // limpa tabelas (opcional, cuidado em produção!)
         $this->db->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $this->db->table('user_tokens')->truncate();
-        $this->db->table('user_reviews')->truncate();
-        $this->db->table('user_wishlists')->truncate();
-        $this->db->table('user_addresses')->truncate();
+        $this->db->table('users_tokens')->truncate();
+        $this->db->table('users_reviews')->truncate();
+        $this->db->table('users_wishlists')->truncate();
+        $this->db->table('users_addresses')->truncate();
         $this->db->table('users')->truncate();
         $this->db->query('SET FOREIGN_KEY_CHECKS = 1;');
 
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
             $userId = $this->db->insertID();
 
             // === Addresses ===
-            $this->db->table('user_addresses')->insertBatch([
+            $this->db->table('users_addresses')->insertBatch([
                 [
                     'user_id'    => $userId,
                     'type'       => 'billing',
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
             // === Wishlists (2 produtos aleatórios) ===
             $wishlistProducts = $faker->randomElements($productIds, 2);
             foreach ($wishlistProducts as $pid) {
-                $this->db->table('user_wishlists')->insert([
+                $this->db->table('users_wishlists')->insert([
                     'user_id'    => $userId,
                     'product_id' => $pid,
                     'created_at' => date('Y-m-d H:i:s'),
@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
 
             // === Reviews (1 produto aleatório) ===
             $reviewProduct = $faker->randomElement($productIds);
-            $this->db->table('user_reviews')->insert([
+            $this->db->table('users_reviews')->insert([
                 'user_id'    => $userId,
                 'product_id' => $reviewProduct,
                 'rating'     => $faker->numberBetween(1, 5),
@@ -93,7 +93,7 @@ class UserSeeder extends Seeder
 
             // === Tokens (simulação de password reset) ===
             if ($faker->boolean(40)) { // 40% dos users têm token ativo
-                $this->db->table('user_tokens')->insert([
+                $this->db->table('users_tokens')->insert([
                     'user_id'    => $userId,
                     'token'      => bin2hex(random_bytes(16)),
                     'type'       => 'password_reset',

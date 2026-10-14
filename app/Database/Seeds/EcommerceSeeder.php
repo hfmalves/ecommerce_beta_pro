@@ -9,15 +9,16 @@ class EcommerceSeeder extends Seeder
 {
     public function run()
     {
+        helper('url');
         $faker = Factory::create('pt_PT');
 
         // === Limpar tabelas ===
         $this->db->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $this->db->table('images')->truncate();
-        $this->db->table('product_variant_attributes')->truncate();
-        $this->db->table('product_variants')->truncate();
-        $this->db->table('attribute_values')->truncate();
-        $this->db->table('attributes')->truncate();
+        $this->db->table('products_images')->truncate();
+        $this->db->table('products_variant_attributes')->truncate();
+        $this->db->table('products_variants')->truncate();
+        $this->db->table('products_attribute_values')->truncate();
+        $this->db->table('products_attributes')->truncate();
         $this->db->table('products')->truncate();
         $this->db->query('SET FOREIGN_KEY_CHECKS = 1;');
 
@@ -30,7 +31,7 @@ class EcommerceSeeder extends Seeder
 
         $attrIds = [];
         foreach ($attributes as $attr) {
-            $this->db->table('attributes')->insert(array_merge($attr, [
+            $this->db->table('products_attributes')->insert(array_merge($attr, [
                 'is_required'   => true,
                 'is_filterable' => true,
                 'created_at'    => date('Y-m-d H:i:s'),
@@ -48,7 +49,7 @@ class EcommerceSeeder extends Seeder
         $valueIds = [];
         foreach ($values as $attrCode => $list) {
             foreach ($list as $val) {
-                $this->db->table('attribute_values')->insert([
+                $this->db->table('products_attribute_values')->insert([
                     'attribute_id' => $attrIds[$attrCode],
                     'value'        => $val,
                     'created_at'   => date('Y-m-d H:i:s'),
@@ -60,7 +61,7 @@ class EcommerceSeeder extends Seeder
         // === Preparar listas ===
         $brandIds     = array_column($this->db->table('brands')->select('id')->get()->getResultArray(), 'id');
         $categoryIds  = array_column($this->db->table('categories')->select('id')->get()->getResultArray(), 'id');
-        $taxClasses   = $this->db->table('tax_classes')->select('id, rate')->get()->getResultArray();
+        $taxClasses   = $this->db->table('conf_taxes')->select('id, rate')->get()->getResultArray();
 
         // === PRODUTOS (50) ===
         for ($i = 1; $i <= 50; $i++) {
@@ -147,7 +148,7 @@ class EcommerceSeeder extends Seeder
             $productId = $this->db->insertID();
 
             // imagem base
-            $this->db->table('images')->insert([
+            $this->db->table('products_images')->insert([
                 'owner_type' => 'product',
                 'owner_id'   => $productId,
                 'path'       => "images/products/produto-$i/main.jpg",
@@ -174,7 +175,7 @@ class EcommerceSeeder extends Seeder
             foreach ($combinations as $idx => $combo) {
                 $variantSku = $sku . '-' . $combo['color'] . $combo['size'] . $combo['gender'];
 
-                $this->db->table('product_variants')->insert([
+                $this->db->table('products_variants')->insert([
                     'product_id' => $productId,
                     'sku'        => $variantSku,
                     'price'      => $basePrice,
@@ -185,14 +186,14 @@ class EcommerceSeeder extends Seeder
                 $variantId = $this->db->insertID();
 
                 // ligar atributos
-                $this->db->table('product_variant_attributes')->insertBatch([
+                $this->db->table('products_variant_attributes')->insertBatch([
                     ['variant_id' => $variantId, 'attribute_value_id' => $valueIds['color'][$combo['color']]],
                     ['variant_id' => $variantId, 'attribute_value_id' => $valueIds['size'][$combo['size']]],
                     ['variant_id' => $variantId, 'attribute_value_id' => $valueIds['gender'][$combo['gender']]],
                 ]);
 
                 // imagem variante
-                $this->db->table('images')->insert([
+                $this->db->table('products_images')->insert([
                     'owner_type' => 'variant',
                     'owner_id'   => $variantId,
                     'path'       => "images/products/produto-$i/variante-$idx.jpg",

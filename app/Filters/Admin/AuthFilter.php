@@ -33,7 +33,11 @@ class AuthFilter implements FilterInterface
             'admin/auth/recovery',
             'admin/auth/reset',
         ];
-        $path = ltrim($request->getUri()->getPath(), '/');
+        // Use the routed path: the raw URL can include index.php after rewriting.
+        $path = trim($request->getUri()->getRoutePath(), '/');
+        if (str_starts_with($path, 'admin/auth/')) {
+            return;
+        }
         if (empty($user) || empty($user['isLoggedIn'])) {
             if (! in_array($path, $authRoutes)) {
                 return redirect()->to(base_url('admin/auth/login'));

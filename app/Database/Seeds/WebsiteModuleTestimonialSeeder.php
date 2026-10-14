@@ -8,6 +8,7 @@ class WebsiteModuleTestimonialSeeder extends Seeder
 {
     public function run()
     {
+        helper('website_schema');
         $data = [
 
             [
@@ -108,6 +109,6 @@ class WebsiteModuleTestimonialSeeder extends Seeder
 
         ];
 
-        $this->db->table('website_module_testimonial')->insertBatch($data);
+        $this->db->table(website_presentation_table('website_module_testimonial'))->insertBatch($data);
     }
 }

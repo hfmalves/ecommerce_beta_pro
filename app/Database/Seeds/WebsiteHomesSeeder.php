@@ -8,57 +8,45 @@ class WebsiteHomesSeeder extends Seeder
 {
     public function run()
     {
+        helper('website_schema');
         $db = \Config\Database::connect();
 
         // Helper rápido
         $now = date('Y-m-d H:i:s');
 
-        /**
-         * LIMPAR TUDO (ordem importa)
-         * Inclui TODAS as tabelas do teu print.
-         */
-        $tables = [
-            // top_category_filter
-            'website_block_top_category_filter_tab_items',
-            'website_block_top_category_filter_tabs',
-            'website_block_top_category_filter',
-
-            // service_promotion
-            'website_block_service_promotion_items',
-            'website_block_service_promotion',
-
-            // products_grid
-            'website_block_products_grid_items',
-            'website_block_products_grid',
-
-            // home_deals_day
-            'website_block_home_deals_day_items',
-            'website_block_home_deals_day',
-
-            // grid_banner
-            'website_block_grid_banner_items',
-            'website_block_grid_banner',
-
-            // blog_grid
-            'website_block_blog_grid_items',
-            'website_block_blog_grid',
-
-            // hero
-            'website_block_hero',
-
-            // faq
-            'website_faq_items',
-            'website_faqs',
-
-            // base
-            'website_home_blocks',
-            'website_homes',
-        ];
-
-        foreach ($tables as $table) {
-            $db->table($table)->truncate();
+        // Include every home block table, including footer, newsletter and targets.
+        // TRUNCATE requires FK checks disabled even when child tables are empty.
+        $tables = [];
+        $prefix = $db->DBPrefix;
+        foreach ($db->query('SHOW FULL TABLES')->getResultArray() as $row) {
+            $values = array_values($row);
+            if ($values[1] !== 'BASE TABLE') {
+                continue;
+            }
+            $table = $values[0];
+            $name = substr($table, strlen($prefix));
+            $name = preg_replace('/^legacy_/', '', $name);
+            if (str_starts_with($name, 'website_block_')
+                || in_array($name, ['website_home_blocks', 'website_homes', 'website_faqs', 'website_faq_items'], true)) {
+                $tables[] = $table;
+            }
         }
 
+        $db->disableForeignKeyChecks();
+        try {
+            foreach ($tables as $table) {
+                if (! $db->table($table)->truncate()) {
+                    throw new \RuntimeException('Não foi possível limpar a tabela: ' . $table);
+                }
+            }
+        } finally {
+            $db->enableForeignKeyChecks();
+        }
+
+        $store = $db->table('stores')->select('id')->orderBy('id')->get()->getRowArray();
+        if (! $store) {
+            throw new \RuntimeException('WebsiteHomesSeeder requer uma loja. Execute StoreSeeder primeiro.');
+        }
         /**
          * HOMES
          */
@@ -71,7 +59,10 @@ class WebsiteHomesSeeder extends Seeder
         $homeIds = [];
         foreach ($homes as $code) {
             $db->table('website_homes')->insert([
-                'store_id'   => 1,
+                'store_id'   => $store['id'],
+                'name'       => ucfirst($code),
+                'is_default' => $code === 'default',
+                'block_id'   => 0,
                 'home_code'  => $code,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -125,7 +116,7 @@ class WebsiteHomesSeeder extends Seeder
                 if ($blockType === 'hero') {
 
                     // HERO BASE (SO BLOCK_ID)
-                    $db->table('website_block_hero')->insert([
+                    $db->table(website_presentation_table('website_block_hero'))->insert([
                         'block_id' => $blockId,
                     ]);
 
@@ -158,7 +149,7 @@ class WebsiteHomesSeeder extends Seeder
                     ];
 
                     foreach ($slides as $s) {
-                        $db->table('website_block_hero_slides')->insert([
+                        $db->table(website_presentation_table('website_block_hero_slides'))->insert([
                             'block_id'         => $blockId,
                             'background_image' => $s['background_image'],
                             'title'            => $s['title'],
@@ -177,7 +168,7 @@ class WebsiteHomesSeeder extends Seeder
                  * GRID BANNER + ITEMS (3 items)
                  */
                 if ($blockType === 'grid_banner') {
-                    $db->table('website_block_grid_banner')->insert([
+                    $db->table(website_presentation_table('website_block_grid_banner'))->insert([
                         'block_id'         => $blockId,
                         'columns_desktop'  => 3,
                         'columns_tablet'   => 2,
@@ -193,7 +184,7 @@ class WebsiteHomesSeeder extends Seeder
 
                     $pos = 1;
                     foreach ($items as $it) {
-                        $db->table('website_block_grid_banner_items')->insert([
+                        $db->table(website_presentation_table('website_block_grid_banner_items'))->insert([
                             'block_id'    => $blockId,
                             'image'       => $it['image'],
                             'title'       => $it['title'],
@@ -210,7 +201,7 @@ class WebsiteHomesSeeder extends Seeder
                  * PRODUCTS GRID (auto por tipo) + opcional manual items
                  */
                 if ($blockType === 'products_grid') {
-                    $db->table('website_block_products_grid')->insert([
+                    $db->table(website_presentation_table('website_block_products_grid'))->insert([
                         'block_id'     => $blockId,
                         'title'        => 'Produtos em Destaque',
                         'grid_type'    => 'trending',
@@ -229,7 +220,7 @@ class WebsiteHomesSeeder extends Seeder
                  * BLOG GRID + ITEMS (3 posts)
                  */
                 if ($blockType === 'blog_grid') {
-                    $db->table('website_block_blog_grid')->insert([
+                    $db->table(website_presentation_table('website_block_blog_grid'))->insert([
                         'block_id'        => $blockId,
                         'section_title'   => 'Our Blog',
                         'items_limit'     => 3,
@@ -248,7 +239,7 @@ class WebsiteHomesSeeder extends Seeder
 
                     $pos = 1;
                     foreach ($posts as $p) {
-                        $db->table('website_block_blog_grid_items')->insert([
+                        $db->table(website_presentation_table('website_block_blog_grid_items'))->insert([
                             'block_id'      => $blockId,
                             'image'         => $p['image'],
                             'author'        => $p['author'],
@@ -265,7 +256,7 @@ class WebsiteHomesSeeder extends Seeder
                  * HOME DEALS DAY + ITEMS (min 5 items se houver produtos/variantes)
                  */
                 if ($blockType === 'home_deals_day') {
-                    $db->table('website_block_home_deals_day')->insert([
+                    $db->table(website_presentation_table('website_block_home_deals_day'))->insert([
                         'block_id'        => $blockId,
                         'title'           => 'Ofertas do Dia',
                         'items_limit'     => 10,
@@ -281,7 +272,7 @@ class WebsiteHomesSeeder extends Seeder
                     // Preferir variantes
                     foreach ($variants as $v) {
                         if ($pos > 5) break;
-                        $db->table('website_block_home_deals_day_items')->insert([
+                        $db->table(website_presentation_table('website_block_home_deals_day_items'))->insert([
                             'block_id'            => $blockId,
                             'product_id'          => $v['product_id'],
                             'product_variant_id'  => $v['id'],
@@ -293,7 +284,7 @@ class WebsiteHomesSeeder extends Seeder
                     // Fallback produtos
                     $i = 0;
                     while ($pos <= 5 && $i < count($products)) {
-                        $db->table('website_block_home_deals_day_items')->insert([
+                        $db->table(website_presentation_table('website_block_home_deals_day_items'))->insert([
                             'block_id'   => $blockId,
                             'product_id' => $products[$i]['id'],
                             'position'   => $pos++,
@@ -307,7 +298,7 @@ class WebsiteHomesSeeder extends Seeder
                  * SERVICE PROMOTION + ITEMS (3)
                  */
                 if ($blockType === 'service_promotion') {
-                    $db->table('website_block_service_promotion')->insert([
+                    $db->table(website_presentation_table('website_block_service_promotion'))->insert([
                         'block_id'     => $blockId,
                         'layout'       => 'horizontal',
                         'items_limit'  => 3,
@@ -321,7 +312,7 @@ class WebsiteHomesSeeder extends Seeder
 
                     $pos = 1;
                     foreach ($services as $s) {
-                        $db->table('website_block_service_promotion_items')->insert([
+                        $db->table(website_presentation_table('website_block_service_promotion_items'))->insert([
                             'block_id'   => $blockId,
                             'icon'       => $s['icon'],
                             'title'      => $s['title'],
@@ -370,7 +361,7 @@ class WebsiteHomesSeeder extends Seeder
                  * Pelo menos 3 tabs e 5 produtos/variantes por tab (manual).
                  */
                 if ($blockType === 'top_category_filter') {
-                    $db->table('website_block_top_category_filter')->insert([
+                    $db->table(website_presentation_table('website_block_top_category_filter'))->insert([
                         'block_id'        => $blockId,
                         'title'           => 'Coleções em Destaque',
                         'slides_desktop'  => 5,
@@ -388,7 +379,7 @@ class WebsiteHomesSeeder extends Seeder
 
                     $tabPos = 1;
                     foreach ($tabs as $label) {
-                        $db->table('website_block_top_category_filter_tabs')->insert([
+                        $db->table(website_presentation_table('website_block_top_category_filter_tabs'))->insert([
                             'block_id'     => $blockId,
                             'label'        => $label,
                             'source_type'  => 'manual',
@@ -404,7 +395,7 @@ class WebsiteHomesSeeder extends Seeder
                         foreach ($variants as $v) {
                             if ($itemPos > 5) break;
 
-                            $db->table('website_block_top_category_filter_tab_items')->insert([
+                            $db->table(website_presentation_table('website_block_top_category_filter_tab_items'))->insert([
                                 'tab_id'             => $tabId,
                                 'product_id'         => $v['product_id'],
                                 'product_variant_id' => $v['id'],
@@ -416,7 +407,7 @@ class WebsiteHomesSeeder extends Seeder
                         // 2) fallback produtos (se não houver variantes suficientes)
                         $i = 0;
                         while ($itemPos <= 5 && $i < count($products)) {
-                            $db->table('website_block_top_category_filter_tab_items')->insert([
+                            $db->table(website_presentation_table('website_block_top_category_filter_tab_items'))->insert([
                                 'tab_id'     => $tabId,
                                 'product_id' => $products[$i]['id'],
                                 'position'   => $itemPos++,

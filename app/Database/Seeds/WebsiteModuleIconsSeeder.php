@@ -8,7 +8,8 @@ class WebsiteModuleIconsSeeder extends Seeder
 {
     public function run()
     {
-        $this->db->table('website_module_icons')->truncate();
+        helper('website_schema');
+        $this->db->table(website_presentation_table('website_module_icons'))->truncate();
 
         $data = [
             [
@@ -41,6 +42,6 @@ class WebsiteModuleIconsSeeder extends Seeder
             ],
         ];
 
-        $this->db->table('website_module_icons')->insertBatch($data);
+        $this->db->table(website_presentation_table('website_module_icons'))->insertBatch($data);
     }
 }

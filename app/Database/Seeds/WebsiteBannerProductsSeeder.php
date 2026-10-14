@@ -8,11 +8,12 @@ class WebsiteBannerProductsSeeder extends Seeder
 {
     public function run()
     {
+        helper('website_schema');
         $db = \Config\Database::connect();
 
         // limpar a tabela para garantir só estes 2 blocos
         $db->query('SET FOREIGN_KEY_CHECKS = 0');
-        $db->table('website_module_banner_products_positions')->truncate();
+        $db->table(website_presentation_table('website_module_banner_products_positions'))->truncate();
         $db->query('SET FOREIGN_KEY_CHECKS = 1');
 
         $data = [
@@ -46,7 +47,7 @@ class WebsiteBannerProductsSeeder extends Seeder
             ],
         ];
 
-        $db->table('website_module_banner_products_positions')->insertBatch($data);
+        $db->table(website_presentation_table('website_module_banner_products_positions'))->insertBatch($data);
 
         echo "✔️ Seed criado: Left + Right banners inseridos.\n";
     }

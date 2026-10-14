@@ -21,6 +21,8 @@ class HomeBlockModel extends Model
         'is_active',
         'created_at',
         'updated_at',
+        'settings',
+        'settings_version',
     ];
 
     protected bool $allowEmptyInserts = false;

@@ -10,6 +10,17 @@ class OrdersFlow extends Seeder
     {
         $db = \Config\Database::connect();
 
+        $shippingMethods = $db->table('conf_shipping')->get()->getResultArray();
+        $paymentMethods = $db->table('conf_payments')->get()->getResultArray();
+        $users = $db->table('users')->select('id')->get()->getResultArray();
+
+        // Validate references before clearing any sales data.
+        if (empty($shippingMethods) || empty($paymentMethods) || empty($users)) {
+            throw new \RuntimeException('OrdersFlow requer métodos em conf_shipping/conf_payments e utilizadores em users. Execute DatabaseSeeder primeiro.');
+        }
+
+        $userId = $users[array_rand($users)]['id'];
+
         echo "⚙️ A preparar base de dados...\n";
 
         // ============================================================
@@ -61,8 +72,10 @@ class OrdersFlow extends Seeder
             $shippingId = $custAddresses[0]['id'];
 
             // Escolher shipping e payment aleatórios
-            $shippingMethodId = rand(1, 3);
-            $paymentMethodId  = rand(1, 4);
+            $shippingMethod = $shippingMethods[array_rand($shippingMethods)];
+            $paymentMethod = $paymentMethods[array_rand($paymentMethods)];
+            $shippingMethodId = $shippingMethod['id'];
+            $paymentMethodId = $paymentMethod['id'];
 
             // Produtos diferentes
             shuffle($products);
@@ -124,7 +137,7 @@ class OrdersFlow extends Seeder
             // Criar encomenda
             $order = [
                 'customer_id'         => $cust['id'],
-                'user_id'             => 1,
+                'user_id'             => $userId,
                 'status'              => $status,
                 'total_items'         => $totalItems,
                 'total_tax'           => $totalTax,
@@ -185,8 +198,8 @@ class OrdersFlow extends Seeder
                 'notes'               => 'Documento gerado automaticamente pelo seeder.',
                 'pdf_path'            => null,
                 'hash'                => md5(uniqid((string)$orderId, true)),
-                'created_by'          => 1,
-                'updated_by'          => 1,
+                'created_by'          => $userId,
+                'updated_by'          => $userId,
                 'created_at'          => date('Y-m-d H:i:s'),
                 'updated_at'          => date('Y-m-d H:i:s'),
             ]);
@@ -200,20 +213,14 @@ class OrdersFlow extends Seeder
                 'amount'            => $grandTotal,
                 'currency'          => 'EUR',
                 'exchange_rate'     => 1.0,
-                'method'            => match ($paymentMethodId) {
-                    1 => 'Multibanco',
-                    2 => 'MBWay',
-                    3 => 'PayPal',
-                    4 => 'Visa',
-                    default => 'Multibanco',
-                },
+                'method'            => $paymentMethod['name'],
                 'payment_method_id' => $paymentMethodId,
                 'status'            => $paymentStatus,
                 'transaction_id'    => 'TXN-' . str_pad($orderId, 6, '0', STR_PAD_LEFT),
                 'reference'         => strtoupper(substr($order['status'], 0, 3)) . '-' . rand(100000, 999999),
                 'notes'             => 'Pagamento ' . $paymentStatus . ' gerado automaticamente.',
-                'created_by'        => 1,
-                'updated_by'        => 1,
+                'created_by'        => $userId,
+                'updated_by'        => $userId,
                 'created_at'        => date('Y-m-d H:i:s'),
                 'updated_at'        => date('Y-m-d H:i:s'),
                 'paid_at'           => in_array($paymentStatus, ['paid','refunded']) ? date('Y-m-d H:i:s') : null,
@@ -266,12 +273,7 @@ class OrdersFlow extends Seeder
                 default      => 'pending',
             };
 
-            $carrierMap = [
-                1 => 'CTT Expresso',
-                2 => 'UPS',
-                3 => 'DHL'
-            ];
-            $carrier = $carrierMap[$shippingMethodId] ?? 'CTT Expresso';
+            $carrier = $shippingMethod['name'];
 
             $trackingNumber = strtoupper(substr($carrier, 0, 3)) . '-' . rand(100000, 999999);
             $baseTrackingUrl = match ($carrier) {

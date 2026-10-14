@@ -16,16 +16,20 @@ class CartsSeeder extends Seeder
         $products  = $this->db->table('products')->get()->getResultArray();
         $variants  = $this->db->table('products_variants')->get()->getResultArray();
 
+        if (empty($products) || empty($customers)) {
+            throw new \RuntimeException('CartsSeeder requer produtos e clientes. Execute DatabaseSeeder primeiro.');
+        }
+
         for ($i = 0; $i < 200; $i++) {
-            // pode ser cliente registado ou guest
-            $customer = $faker->boolean(70) ? $faker->randomElement($customers) : null;
+            // The current schema requires a registered customer (NOT NULL FK).
+            $customer = $faker->randomElement($customers);
             $sessionId = $faker->uuid;
 
             // status do carrinho
             $status = $faker->randomElement(['active','abandoned','converted']);
 
             $cartData = [
-                'customer_id'        => $customer['id'] ?? 0,
+                'customer_id'        => $customer['id'],
                 'user_id'            => null,
                 'session_id'         => $sessionId,
                 'status'             => $status,
@@ -79,6 +83,6 @@ class CartsSeeder extends Seeder
             ]);
         }
 
-        echo "✅ Foram criados 200 carrinhos de teste (guests + clientes) com itens.\n";
+        echo "✅ Foram criados 200 carrinhos de teste de clientes com itens.\n";
     }
 }

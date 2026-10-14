@@ -21,7 +21,7 @@ class BrandsCategoriesTaxesSeeder extends Seeder
             ['name' => 'Zara', 'slug' => 'zara', 'description' => 'Moda internacional acessível', 'logo' => 'brands/zara.png'],
             ['name' => 'Mango', 'slug' => 'mango', 'description' => 'Vestuário contemporâneo', 'logo' => 'brands/mango.png'],
         ];
-        $this->db->table('brands')->insertBatch($brands);
+        $this->db->table('brands')->upsertBatch($brands);
 
         // === CategoriesModel (hierarquia simples) ===
         $categories = [
@@ -43,14 +43,24 @@ class BrandsCategoriesTaxesSeeder extends Seeder
             ['id' => 11, 'parent_id' => 3, 'name' => 'Roupa', 'slug' => 'roupa-crianca', 'description' => 'T-shirts, casacos, calças'],
             ['id' => 12, 'parent_id' => 3, 'name' => 'Acessórios', 'slug' => 'acessorios-crianca', 'description' => 'Bonés, mochilas infantis'],
         ];
-        $this->db->table('categories')->insertBatch($categories);
+        $this->db->table('categories')->upsertBatch($categories);
 
         // === Tax Classes ===
         $taxes = [
             ['name' => 'IVA Normal PT', 'rate' => 23.00, 'country' => 'PT'],
-            ['name' => 'IVA Reduzido PT', 'rate' => 13.00, 'country' => 'PT'],
-            ['name' => 'IVA Intermédio PT', 'rate' => 6.00, 'country' => 'PT'],
+            ['name' => 'IVA Reduzido PT', 'rate' => 6.00, 'country' => 'PT'],
+            ['name' => 'IVA Intermédio PT', 'rate' => 13.00, 'country' => 'PT'],
         ];
-        $this->db->table('tax_classes')->insertBatch($taxes);
+        foreach ($taxes as $tax) {
+            // ConfigSeeder already supplies some of these country/rate pairs.
+            $exists = $this->db->table('conf_taxes')
+                ->where('country', $tax['country'])
+                ->where('rate', $tax['rate'])
+                ->countAllResults() > 0;
+
+            if (! $exists) {
+                $this->db->table('conf_taxes')->insert($tax);
+            }
+        }
     }
 }

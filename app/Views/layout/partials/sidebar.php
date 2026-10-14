@@ -131,12 +131,8 @@
                         <li><a href="<?= base_url('admin/settings/legal') ?>">Informação Legal</a></li>
                     </ul>
                 </li>
-
-
-
             </ul>
         </div>
         <!-- Sidebar End -->
-
     </div>
 </div>

@@ -28,7 +28,7 @@ class ProductCategoriesSeeder extends Seeder
             }
 
             foreach ($randCategories as $index) {
-                $this->db->table('product_categories')->insert([
+                $this->db->table('products_categories')->upsert([
                     'product_id'  => $product['id'],
                     'category_id' => $categories[$index]['id'],
                 ]);

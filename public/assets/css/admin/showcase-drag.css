@@ -1,0 +1,25 @@
+.showcase-drag { padding: 4px; overflow: visible; }
+.showcase-drag__image { width: 100%; }
+.showcase-drag__status { color: #64748b; font-size: 13px; margin-bottom: 12px; min-height: 25px; }
+.showcase-drag__block { position: relative; border: 2px solid transparent; border-radius: 6px; padding: 5px; transition: border-color .12s, opacity .12s; }
+.showcase-drag__block:hover, .showcase-drag__block:focus-within { border-color: #d6dafa; }
+.showcase-drag__handle { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 4px; background: #f4f5fb; color: #46506a; cursor: grab; user-select: none; }
+.showcase-drag__handle > span { font-size: 24px; line-height: 1; }
+.showcase-drag__handle > small { margin-left: auto; color: #67748b; }
+.showcase-drag__handle:focus-visible { outline: 2px solid #5567e8; outline-offset: 2px; }
+.showcase-drag__block.is-dragging { opacity: .4; border: 2px dashed #5567e8; }
+.showcase-drag__block.drop-before::before, .showcase-drag__block.drop-after::after { content: 'Solte aqui'; position: absolute; left: 0; right: 0; z-index: 2; height: 25px; background: #e9ecff; border: 2px dashed #5567e8; color: #3547c9; text-align: center; font-size: 12px; line-height: 21px; pointer-events: none; }
+.showcase-drag__block.drop-before::before { top: -12px; }
+.showcase-drag__block.drop-after::after { bottom: -12px; }
+.showcase-drag[aria-busy="true"] .showcase-drag__block { cursor: wait; }
+.showcase-drag [x-cloak] { display: none !important; }
+.showcase-block-choice { width: 100%; height: 100%; border: 2px solid #e4e7ef; border-radius: 7px; background: #fff; text-align: left; padding: 12px; display: flex; flex-direction: column; gap: 7px; }
+.showcase-block-choice img { width: 100%; height: 85px; object-fit: contain; background: #f4f5fa; }
+.showcase-block-choice small { color: #64748b; }
+.showcase-block-choice:hover, .showcase-block-choice.is-selected { border-color: #5567e8; background: #f3f5ff; }
+.showcase-block-choice:focus-visible { outline: 3px solid #bbc4ff; }
+.showcase-drag .modal { cursor: default; }
+.showcase-drag__toolbar { display: flex; align-items: stretch; gap: 10px; }
+.showcase-drag__toolbar .showcase-drag__handle { flex: 1; min-width: 0; }
+.showcase-drag__actions { display: flex; align-items: center; flex-shrink: 0; cursor: default; }
+@media (max-width: 576px) { .showcase-drag__handle > small { display: none; } }

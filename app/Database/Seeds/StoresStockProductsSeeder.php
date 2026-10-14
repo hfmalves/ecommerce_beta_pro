@@ -38,6 +38,6 @@ class StoresStockProductsSeeder extends Seeder
             ],
         ];
 
-        $this->db->table('stores_stock_products')->insertBatch($data);
+        $this->db->table('stores_products_stock')->insertBatch($data);
     }
 }
