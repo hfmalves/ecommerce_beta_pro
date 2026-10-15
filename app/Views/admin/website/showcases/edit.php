@@ -22,6 +22,14 @@ Módulos
                      data-save-url="<?= base_url('admin/website/showcases/reorder-blocks') ?>"
                      data-delete-url="<?= base_url('admin/website/showcases/delete-block') ?>"
                      data-add-url="<?= base_url('admin/website/showcases/add-block') ?>"
+                     data-hero-save-url="<?= base_url('admin/website/showcases/save-hero') ?>"
+                     data-hero-preview-url="<?= base_url('admin/website/showcases/preview-hero') ?>"
+                     data-hero-upload-url="<?= base_url('admin/website/showcases/upload-hero-image') ?>"
+                     data-block-save-url="<?= base_url('admin/website/showcases/save-block') ?>"
+                     data-block-preview-url="<?= base_url('admin/website/showcases/preview-block') ?>"
+                     data-block-upload-url="<?= base_url('admin/website/showcases/upload-block-image') ?>"
+                     data-public-base="<?= base_url() ?>" data-hero-image-base="<?= base_url('uploads/hero/') ?>"
+                     data-placeholder-url="<?= base_url('assets/images/slide-placeholder.svg') ?>"
                      data-csrf-name="<?= esc(csrf_token(), 'attr') ?>" data-csrf-hash="<?= esc(csrf_hash(), 'attr') ?>"
                      @dragover.prevent="dragOver($event)" @drop.prevent="drop($event)" @dragend="dragEnd()"
                      @keydown.escape.window="cancel()" :aria-busy="saving">
@@ -32,6 +40,8 @@ Módulos
                     <?php foreach ($blocks as $index => $block): ?>
                         <?= view('admin/website/showcases/block_card', ['block' => $block, 'blockImages' => $images[$block['id']] ?? []]) ?>
                     <?php endforeach ?>
+                    <?= view('admin/website/showcases/hero_editor') ?>
+                    <?= view('admin/website/showcases/block_editor') ?>
                     <div class="modal fade" id="deleteShowcaseBlock" x-ref="deleteModal" tabindex="-1" aria-labelledby="deleteShowcaseBlockTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                         <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
                             <div class="modal-header"><h5 class="modal-title" id="deleteShowcaseBlockTitle">Eliminar bloco?</h5><button type="button" class="btn-close" @click="cancelDelete()" :disabled="saving" aria-label="Fechar"></button></div>
@@ -159,5 +169,8 @@ Módulos
 <script src="<?= base_url('assets/js/admin/showcases/delete.js') ?>"></script>
 <script src="<?= base_url('assets/js/admin/showcases/settings.js') ?>"></script>
 <script src="<?= base_url('assets/js/admin/showcases/preview-frame.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/showcases/hero-editor.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/showcases/block-fields.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/showcases/block-editor.js') ?>"></script>
 <script src="<?= base_url('assets/js/admin/showcasesApp.js') ?>"></script>
 <?= $this->endSection() ?>

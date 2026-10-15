@@ -34,6 +34,12 @@ class HeroPreview
         }
         usort($slides, static fn ($a, $b) => $a['position'] <=> $b['position']);
         $block['data'] = ['slides' => $slides];
+        $config = $settings['config'] ?? [];
+        $block['slider_options_json'] = json_encode([
+            'autoplay' => ($config['autoplay'] ?? true) ? ['delay' => max(1000, min(30000, (int) ($config['autoplay_delay'] ?? 5000)))] : false,
+            'slidesPerView' => 1, 'effect' => 'fade', 'loop' => count($slides) > 1,
+            'pagination' => ['el' => '.slideshow-pagination', 'type' => 'bullets', 'clickable' => true],
+        ], JSON_THROW_ON_ERROR);
         return $block;
     }
 }

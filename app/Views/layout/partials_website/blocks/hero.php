@@ -5,19 +5,7 @@ if (!$slides) return;
 
 <?php if (!empty($slides)): ?>
 <section class="swiper-container js-swiper-slider slideshow full-width_padding-20 slideshow-md"
-         data-settings='{
-        "autoplay": {
-          "delay": 5000
-        },
-        "slidesPerView": 1,
-        "effect": "fade",
-        "loop": true,
-        "pagination": {
-          "el": ".slideshow-pagination",
-          "type": "bullets",
-          "clickable": true
-        }
-      }'>
+         data-settings='<?= esc($block['slider_options_json'] ?? '{"autoplay":{"delay":5000},"slidesPerView":1,"effect":"fade","loop":true,"pagination":{"el":".slideshow-pagination","type":"bullets","clickable":true}}', 'attr') ?>'>
     <div class="swiper-wrapper">
         <?php foreach ($slides as $slide): ?>
             <div class="swiper-slide">

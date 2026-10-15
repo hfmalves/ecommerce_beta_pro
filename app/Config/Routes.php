@@ -200,6 +200,14 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($rou
             $routes->post('reorder-blocks', 'ShowcasesController::reorderBlocks', ['filter' => 'adminAuth']);
             $routes->post('delete-block', 'ShowcasesController::deleteBlock', ['filter' => 'adminAuth']);
             $routes->post('add-block', 'ShowcasesController::addBlock', ['filter' => 'adminAuth']);
+            $routes->get('hero-settings/(:num)/(:num)', 'ShowcasesController::heroSettings/$1/$2', ['filter' => 'adminAuth']);
+            $routes->post('save-hero', 'ShowcasesController::saveHero', ['filter' => 'adminAuth']);
+            $routes->post('preview-hero', 'ShowcasesController::previewHero', ['filter' => 'adminAuth']);
+            $routes->post('upload-hero-image', 'ShowcasesController::uploadHeroImage', ['filter' => 'adminAuth']);
+            $routes->get('block-settings/(:num)/(:num)', 'ShowcasesController::blockSettings/$1/$2', ['filter' => 'adminAuth']);
+            $routes->post('save-block', 'ShowcasesController::saveBlockSettings', ['filter' => 'adminAuth']);
+            $routes->post('preview-block', 'ShowcasesController::previewBlockSettings', ['filter' => 'adminAuth']);
+            $routes->post('upload-block-image', 'ShowcasesController::uploadBlockImage', ['filter' => 'adminAuth']);
             $routes->post('delete', 'ShowcasesController::delete');
             $routes->post('deactivate', 'ShowcasesController::deactivate');
         });

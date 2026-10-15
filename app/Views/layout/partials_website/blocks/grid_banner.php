@@ -14,7 +14,7 @@ if (empty($items)) {
             $img = $item['image'] ?? '';
             $src = base_url('uploads/blocks/large/' . $img);
             ?>
-            <div class="col-lg-4">
+            <div class="<?= esc($block['banner_column_class'] ?? 'col-lg-4', 'attr') ?>">
                 <div class="grid-banner__item position-relative mb-3">
 
                     <img

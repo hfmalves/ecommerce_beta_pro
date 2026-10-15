@@ -19,7 +19,7 @@ $title       = $blockConfig['title'] ?? '';
             <?php foreach ($products as $product): ?>
                 <?php $variationId = $product['variation']['id'] ?? null; ?>
 
-                <div class="col-6 col-md-4 col-lg-3">
+                <div class="<?= esc($block['product_column_class'] ?? 'col-6 col-md-4 col-lg-3', 'attr') ?>">
                     <div class="product-card mb-3 mb-md-4 mb-xxl-5">
 
                         <div class="pc__img-wrapper">

@@ -2,6 +2,14 @@
                              draggable="false" @keydown.alt.up.prevent="move($event, -1)" @keydown.alt.down.prevent="move($event, 1)">
                             <div class="showcase-drag__toolbar">
                             <div class="showcase-drag__actions">
+                                <?php if ($block['block_type'] === 'hero'): ?>
+                                <button type="button" class="btn btn-outline-primary btn-sm" @click.stop="openHero($event)" :disabled="saving"
+                                        data-settings-url="<?= base_url('admin/website/showcases/hero-settings/' . (int) $block['home_id'] . '/' . (int) $block['id']) ?>">Editar slides</button>
+                                <?php endif ?>
+                                <?php if ($block['block_type'] !== 'hero'): ?>
+                                <button type="button" class="btn btn-outline-primary btn-sm" @click.stop="openBlockEditor($event)" :disabled="saving"
+                                        data-settings-url="<?= base_url('admin/website/showcases/block-settings/' . (int) $block['home_id'] . '/' . (int) $block['id']) ?>">Editar</button>
+                                <?php endif ?>
                                 <button type="button" class="btn btn-outline-danger btn-sm" @click.stop="requestDelete($event)" :disabled="saving" title="Eliminar bloco" aria-label="Eliminar bloco">
                                     <i class="bx bx-trash" aria-hidden="true"></i> Eliminar
                                 </button>

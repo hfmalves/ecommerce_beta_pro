@@ -23,6 +23,8 @@ class ShowcasePreview
         $block['config'] = $config;
         $block['items'] = $items;
         $block['data'] = ['items' => $items];
+        $block['banner_column_class'] = $this->columns($config, ['columns_mobile', 'columns_tablet', 'columns_desktop'], [1, 2, 3]);
+        $block['product_column_class'] = $this->columns($config, ['cols_mobile', 'cols_tablet', 'cols_desktop'], [2, 3, 4]);
 
         if ($type === 'hero') {
             $block = (new HeroPreview())->prepare($block);
@@ -30,7 +32,12 @@ class ShowcasePreview
             $limit = max(1, min(24, (int) ($config['items_limit'] ?? 8)));
             $block['products'] = [];
             if ($type === 'products_grid' && ($config['grid_type'] ?? '') !== 'manual') {
-                $items = (new ProductsModel())->where('status', 'active')->orderBy('id')->findAll($limit);
+                $query = (new ProductsModel())->where('status', 'active')->orderBy('id');
+                if (($config['grid_type'] ?? '') === 'category') {
+                    $ids = array_column(db_connect()->table('products_categories')->select('product_id')->where('category_id', (int) ($config['category_id'] ?? 0))->get()->getResultArray(), 'product_id');
+                    $query->whereIn('id', $ids ?: [0]);
+                }
+                $items = $query->findAll($limit);
                 $items = array_map(static fn ($row) => ['product_id' => $row['id']], $items);
             }
             foreach (array_slice($items, 0, $limit) as $item) {
@@ -47,10 +54,21 @@ class ShowcasePreview
                 unset($item);
             }
             unset($tab);
+        } elseif ($type === 'blog_grid') {
+            foreach ($block['items'] as &$item) {
+                $post = ! empty($item['post_id']) ? (new \App\Models\Website\BlogPostModel())->find($item['post_id']) : null;
+                $item['title'] = $item['title'] ?: ($post['title'] ?? '');
+                $item['author'] = $item['author'] ?: ($post['author_name'] ?? '');
+                $item['image'] = $item['image'] ?: ($post['featured_image'] ?? '');
+                $item['published_at'] = $item['published_at'] ?: ($post['published_at'] ?? date('Y-m-d'));
+                $item['link'] = $item['link'] ?: ($post ? base_url('blog/' . $post['slug']) : '#');
+            }
+            unset($item);
         } elseif ($type === 'faq') {
             $id = (int) ($settings['faq_id'] ?? 0);
-            $block['faq'] = $id ? (new \App\Models\Website\FaqModel())->find($id) : null;
-            $block['items'] = $id ? (new \App\Models\Website\FaqItemModel())->where('faq_id', $id)->orderBy('position')->findAll() : [];
+            $block['faq'] = $items ? ['title' => $config['title'] ?? 'Perguntas frequentes'] : ($id ? (new \App\Models\Website\FaqModel())->find($id) : null);
+            $block['items'] = $items ?: ($id ? (new \App\Models\Website\FaqItemModel())->where('faq_id', $id)->orderBy('position')->findAll() : []);
+            if ($block['faq'] && ! empty($config['title'])) { $block['faq']['title'] = $config['title']; }
         } elseif ($type === 'footer') {
             $block['footer'] = ['config' => $config, 'categories' => $this->ordered($settings['categories'] ?? [])];
         }
@@ -75,6 +93,16 @@ class ShowcasePreview
         $items = array_values(array_filter($items, static fn ($item) => ! isset($item['is_active']) || (bool) $item['is_active']));
         usort($items, static fn ($a, $b) => (int) ($a['position'] ?? $a['sort_order'] ?? 0) <=> (int) ($b['position'] ?? $b['sort_order'] ?? 0));
         return $items;
+    }
+
+    private function columns(array $config, array $keys, array $defaults): string
+    {
+        $classes = [];
+        foreach (['col-', 'col-md-', 'col-lg-'] as $index => $prefix) {
+            $count = max(1, min(6, (int) ($config[$keys[$index]] ?? $defaults[$index])));
+            $classes[] = $prefix . max(1, (int) floor(12 / $count));
+        }
+        return implode(' ', $classes);
     }
 
     private function product(int $id, int $variantId): ?array
@@ -107,6 +135,12 @@ class ShowcasePreview
                 $path = rawurldecode(parse_url($source, PHP_URL_PATH) ?? '');
                 $relative = ltrim($path, '/');
                 $file = realpath(FCPATH . $relative);
+                // Legacy templates prepend different upload directories; stored paths may already include uploads/.
+                if (! $file && substr_count($relative, 'uploads/') > 1) {
+                    $relative = substr($relative, strrpos($relative, 'uploads/'));
+                    $file = realpath(FCPATH . $relative);
+                    if ($file) { $image->setAttribute('src', base_url($relative)); }
+                }
                 $root = realpath(FCPATH) . DIRECTORY_SEPARATOR;
                 $valid = (! $host || $host === parse_url(base_url(), PHP_URL_HOST))
                     && $file && str_starts_with(strtolower($file), strtolower($root)) && is_file($file)

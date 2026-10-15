@@ -6,6 +6,8 @@ document.addEventListener('alpine:init', () => {
         ...window.ShowcaseAdmin.request(),
         ...window.ShowcaseAdmin.drag(),
         ...window.ShowcaseAdmin.add(),
+        ...window.ShowcaseAdmin.hero(),
+        ...window.ShowcaseAdmin.blockEditor(),
         ...window.ShowcaseAdmin.delete()
     }));
 });

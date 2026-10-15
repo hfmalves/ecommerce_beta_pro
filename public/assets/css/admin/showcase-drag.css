@@ -22,5 +22,15 @@
 .showcase-drag .modal { cursor: default; }
 .showcase-drag__toolbar { display: flex; align-items: stretch; gap: 10px; }
 .showcase-drag__toolbar .showcase-drag__handle { flex: 1; min-width: 0; }
-.showcase-drag__actions { display: flex; align-items: center; flex-shrink: 0; cursor: default; }
+.showcase-drag__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; cursor: default; }
+.showcase-hero-editor.offcanvas-end, .showcase-block-editor.offcanvas-end { --bs-offcanvas-width: 50vw; width: 50vw !important; max-width: 50vw; }
+.showcase-editor-field { margin-bottom: 16px; }
+.showcase-editor-group { border: 1px solid #e1e5ee; padding: 16px; border-radius: 8px; margin-bottom: 18px; }
+.showcase-editor-item { background: #fafbfe; border: 1px solid #e1e5ee; border-radius: 6px; padding: 14px; margin-bottom: 14px; }
+.showcase-editor-item > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+.showcase-hero-slide { border: 1px solid #e1e5ee; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+.showcase-hero-slide header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; }
+.showcase-hero-slide__image { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; background: #eef1f7; margin-bottom: 14px; }
+.showcase-hero-editor__footer { padding: 16px; background: #fff; }
+.showcase-hero-editor__footer > div { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
 @media (max-width: 576px) { .showcase-drag__handle > small { display: none; } }
