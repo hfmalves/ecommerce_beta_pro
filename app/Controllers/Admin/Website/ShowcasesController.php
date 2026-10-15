@@ -148,6 +148,21 @@ class ShowcasesController extends BaseController
         ]);
     }
 
+    public function blockPreview($homeId, $blockId)
+    {
+        if (! $this->HomeModel->find((int) $homeId)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+        $block = $this->HomeBlockModel->where('home_id', (int) $homeId)->find((int) $blockId);
+        if (! $block || ! array_key_exists($block['block_type'], config('ShowcaseBlocks')->types)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+        $previewHtml = (new \App\Services\ShowcasePreview())->render($block);
+        return $this->response->setHeader('Cache-Control', 'no-store')->setBody(
+            view('admin/website/showcases/block_preview_frame', ['previewHtml' => $previewHtml, 'previewType' => $block['block_type']])
+        );
+    }
+
     public function reorderBlocks()
     {
         $data = $this->request->getJSON(true);

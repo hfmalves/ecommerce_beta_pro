@@ -14,12 +14,9 @@
                                 <small>Arrastar para mover</small>
                             </div>
                             </div>
-                            <?php foreach ($blockImages as $img): ?>
-                                <img
-                                        src="<?= esc($img) ?>"
-                                        draggable="false"
-                                        class="showcase-drag__image"
-                                >
-                            <?php endforeach ?>
+                                <iframe class="showcase-drag__block-preview" title="Pré-visualização de <?= esc($block['block_type'], 'attr') ?>" loading="lazy"
+                                        x-data="showcasePreviewFrame"
+                                        src="<?= base_url('admin/website/showcases/block-preview/' . (int) $block['home_id'] . '/' . (int) $block['id']) ?>"
+                                        referrerpolicy="same-origin"></iframe>
                         </div>
         

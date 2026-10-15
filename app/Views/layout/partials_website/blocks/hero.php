@@ -24,7 +24,7 @@ if (!$slides) return;
                 <div class="overflow-hidden position-relative h-100">
                     <div class="slideshow-bg">
                         <img
-                                src="<?= base_url('uploads/hero/' . esc($slide['background_image'])) ?>"
+                                src="<?= esc($slide['preview_image_url'] ?? base_url('uploads/hero/' . $slide['background_image']), 'attr') ?>"
                                 onerror="this.onerror=null;this.src='https://placehold.co/1863x700?text=<?= rawurlencode($slide['title'] ?? 'Hero') ?>';"
                                 alt="<?= esc($slide['title']) ?>"
                                 class="slideshow-bg__img object-fit-cover object-position-right"

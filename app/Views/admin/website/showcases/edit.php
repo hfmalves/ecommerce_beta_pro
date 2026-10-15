@@ -158,5 +158,6 @@ Módulos
 <script src="<?= base_url('assets/js/admin/showcases/add.js') ?>"></script>
 <script src="<?= base_url('assets/js/admin/showcases/delete.js') ?>"></script>
 <script src="<?= base_url('assets/js/admin/showcases/settings.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/showcases/preview-frame.js') ?>"></script>
 <script src="<?= base_url('assets/js/admin/showcasesApp.js') ?>"></script>
 <?= $this->endSection() ?>

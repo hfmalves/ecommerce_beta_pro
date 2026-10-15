@@ -1,5 +1,6 @@
 .showcase-drag { padding: 4px; overflow: visible; }
 .showcase-drag__image { width: 100%; }
+.showcase-drag__block-preview { display: block; width: 100%; height: 440px; border: 0; background: #eef1f7; }
 .showcase-drag__status { color: #64748b; font-size: 13px; margin-bottom: 12px; min-height: 25px; }
 .showcase-drag__block { position: relative; border: 2px solid transparent; border-radius: 6px; padding: 5px; transition: border-color .12s, opacity .12s; }
 .showcase-drag__block:hover, .showcase-drag__block:focus-within { border-color: #d6dafa; }
